@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Force card height consistency */
+.product-card {
+  height: 450px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.product-card .ant-card {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.product-card .ant-card-body {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
