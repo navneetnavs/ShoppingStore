@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Badge, Space } from "antd";
-import { ShoppingCartOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { ShoppingCartOutlined, UserOutlined, LogoutOutlined, ShopOutlined } from "@ant-design/icons";
 import { logout } from "../features/authSlice";
 
 export default function Navbar() {
@@ -18,42 +18,73 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-blue-600 text-white p-4 shadow-lg">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-white hover:text-gray-200">
-          ShopStore
-        </Link>
-        
-        <Space size="large">
-          <Link to="/cart" className="text-white hover:text-gray-200">
-            <Badge count={cartCount} showZero>
-              <ShoppingCartOutlined className="text-xl text-white" />
-            </Badge>
+    <nav className="bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-xl border-b border-slate-700">
+      <div className="container mx-auto px-6 py-4">
+        <div className="flex justify-between items-center">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-3 text-white hover:text-emerald-400 transition-colors duration-200">
+            <div className="bg-emerald-500 p-2 rounded-lg">
+              <ShopOutlined className="text-xl text-white" />
+            </div>
+            <span className="text-2xl font-bold tracking-tight">ECOMZY</span>
           </Link>
           
-          {token ? (
-            <Space>
-              <span className="flex items-center gap-2">
-                <UserOutlined />
-                {user?.username}
-              </span>
-              <Button 
-                type="text" 
-                icon={<LogoutOutlined />} 
-                onClick={handleLogout}
-                className="text-white hover:text-gray-200"
-              >
-                Logout
-              </Button>
-            </Space>
-          ) : (
-            <Link to="/login">
-              <Button type="primary" ghost>
-                Login
-              </Button>
+          {/* Navigation Items */}
+          <div className="flex items-center space-x-8">
+            <Link 
+              to="/" 
+              className="text-slate-300 hover:text-white transition-colors duration-200 font-medium"
+            >
+              Home
             </Link>
-          )}
-        </Space>
+            
+            {/* Cart */}
+            <Link to="/cart" className="relative">
+              <div className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors duration-200">
+                <div className="relative">
+                  <ShoppingCartOutlined className="text-xl" />
+                  {cartCount > 0 && (
+                    <Badge 
+                      count={cartCount} 
+                      className="absolute -top-2 -right-2"
+                      style={{ backgroundColor: '#10b981' }}
+                    />
+                  )}
+                </div>
+              </div>
+            </Link>
+            
+            {/* User Section */}
+            {token ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-slate-300">
+                  <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                    <UserOutlined className="text-white text-sm" />
+                  </div>
+                  <span className="font-medium">{user?.username}</span>
+                </div>
+                <Button 
+                  type="text" 
+                  icon={<LogoutOutlined />} 
+                  onClick={handleLogout}
+                  className="text-slate-300 hover:text-white border-slate-600 hover:border-slate-500 transition-colors duration-200"
+                  size="small"
+                >
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Link to="/login">
+                <Button 
+                  type="primary" 
+                  className="bg-emerald-500 hover:bg-emerald-600 border-emerald-500 hover:border-emerald-600 font-medium px-6"
+                >
+                  Login
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </nav>
   );
