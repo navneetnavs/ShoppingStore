@@ -1,18 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-function App() {
-  const [count, setCount] = useState(0)
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import ProductDetail from "./pages/ProductDetail";
+import Cart from "./pages/Cart";
+import Login from "./pages/Login";
 
-  return (
-    <>
-     <div className="h-screen flex items-center justify-center bg-gray-900 text-white text-4xl font-bold">
-      Tailwind is Working 🎉
-    </div>
-    </>
-  )
+// 🔒 Private Route Wrapper
+function PrivateRoute({ children }) {
+  const token = useSelector((state) => state.auth.token);
+  return token ? children : <Navigate to="/login" />;
 }
 
-export default App
+export default function App() {
+  return (
+    <Router>
+      <Navbar />
+      <div className="p-4">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route
+            path="/cart"
+            element={
+              <PrivateRoute>
+                <Cart />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
