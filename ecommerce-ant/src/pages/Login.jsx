@@ -14,43 +14,39 @@ export default function Login() {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      // Fetch users from JSONPlaceholder API
-      const usersResponse = await axios.get("https://jsonplaceholder.typicode.com/users");
-      const users = usersResponse.data;
+      // Use Fake Store API login endpoint
+      const response = await axios.post("https://fakestoreapi.com/auth/login", {
+        username: values.username,
+        password: values.password
+      });
       
-      // Find user by username or email
-      const user = users.find(u => 
-        u.username.toLowerCase() === values.username.toLowerCase() ||
-        u.email.toLowerCase() === values.username.toLowerCase()
-      );
-      
-      // Check if user exists and password is correct (single password for all users)
-      if (user && values.password === "plutonic123") {
-        // Generate a mock token
-        const mockToken = `token_${user.id}_${Date.now()}`;
+      if (response.data && response.data.token) {
+        // Get user details (using mor_2314 as the authenticated user)
+        const userResponse = await axios.get("https://fakestoreapi.com/users/1");
+        const userData = userResponse.data;
         
         dispatch(loginSuccess({ 
-          token: mockToken, 
+          token: response.data.token, 
           user: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            email: user.email,
-            phone: user.phone,
-            website: user.website,
-            company: user.company.name
+            id: userData.id,
+            name: `${userData.name.firstname} ${userData.name.lastname}`,
+            username: userData.username,
+            email: userData.email,
+            phone: userData.phone
           }
         }));
-        message.success(`Welcome back, ${user.name}!`);
+        message.success(`Welcome back, ${userData.name.firstname}!`);
         navigate("/");
-      } else if (!user) {
-        message.error("User not found. Please check your username or email.");
       } else {
-        message.error("Invalid password. Please try again.");
+        message.error("Invalid credentials. Please try again.");
       }
     } catch (error) {
       console.error("Login error:", error);
-      message.error("Login failed. Please check your connection and try again.");
+      if (error.response?.status === 401) {
+        message.error("Invalid username or password.");
+      } else {
+        message.error("Login failed. Please check your connection and try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -113,11 +109,11 @@ export default function Login() {
           
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-2 font-medium">Available Users:</p>
+            <p className="text-sm text-gray-600 mb-2 font-medium">Demo Credentials:</p>
             <div className="text-xs text-gray-500 space-y-1">
-              <div>• <span className="font-medium">Username:</span> Bret, Antonette, Samantha, Karianne, Kamren...</div>
-              <div>• <span className="font-medium">Password:</span> plutonic123 (same for all users)</div>
-              <div className="mt-2 text-xs text-gray-400">You can also use email addresses to login</div>
+              <div>• <span className="font-medium">Username:</span> mor_2314</div>
+              <div>• <span className="font-medium">Password:</span> 83r5^_</div>
+              <div className="mt-2 text-xs text-gray-400">This user returns a real JWT token from Fake Store API</div>
             </div>
           </div>
         </Card>

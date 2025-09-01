@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Row, Col, Select, Spin, Input, Button } from "antd";
-import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
+import { Row, Col, Select, Spin, Input, Button, Slider } from "antd";
+import { SearchOutlined, FilterOutlined, DollarOutlined } from "@ant-design/icons";
 import ProductCard from "../components/ProductCard";
 import ImageCarousel from "../components/ImageCarousel";
 
@@ -14,6 +14,7 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("default");
+  const [priceRange, setPriceRange] = useState([0, 1000]);
 
   useEffect(() => {
     setLoading(true);
@@ -21,6 +22,11 @@ export default function Home() {
       .then((res) => {
         setProducts(res.data);
         setFilteredProducts(res.data);
+        // Set initial price range based on actual product prices
+        const prices = res.data.map(p => p.price);
+        const minPrice = Math.floor(Math.min(...prices));
+        const maxPrice = Math.ceil(Math.max(...prices));
+        setPriceRange([minPrice, maxPrice]);
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
@@ -42,6 +48,11 @@ export default function Home() {
       );
     }
     
+    // Filter by price range
+    filtered = filtered.filter(p => 
+      p.price >= priceRange[0] && p.price <= priceRange[1]
+    );
+    
     // Sort products
     if (sortBy === "price-low") {
       filtered = [...filtered].sort((a, b) => a.price - b.price);
@@ -52,7 +63,7 @@ export default function Home() {
     }
     
     setFilteredProducts(filtered);
-  }, [products, category, searchTerm, sortBy]);
+  }, [products, category, searchTerm, sortBy, priceRange]);
 
   const categoryOptions = [
     { value: "all", label: "All Categories" },
@@ -83,45 +94,82 @@ export default function Home() {
 
         {/* Filters and Search */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              {/* Search */}
-              <div className="flex-1 max-w-md">
-                <Search
-                  placeholder="Search products..."
-                  allowClear
-                  size="large"
-                  prefix={<SearchOutlined className="text-gray-400" />}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="rounded-lg"
-                />
+          <div className="flex flex-col gap-6">
+            {/* First Row - Search, Category, Sort */}
+            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+              <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                {/* Search */}
+                <div className="flex-1 max-w-md">
+                  <Search
+                    placeholder="Search products..."
+                    allowClear
+                    size="large"
+                    prefix={<SearchOutlined className="text-gray-400" />}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="rounded-lg"
+                  />
+                </div>
+                
+                {/* Category Filter */}
+                <div className="flex items-center gap-2">
+                  <FilterOutlined className="text-gray-500" />
+                  <Select
+                    value={category}
+                    onChange={setCategory}
+                    size="large"
+                    style={{ minWidth: 180 }}
+                    options={categoryOptions}
+                    className="rounded-lg"
+                  />
+                </div>
               </div>
               
-              {/* Category Filter */}
+              {/* Sort */}
               <div className="flex items-center gap-2">
-                <FilterOutlined className="text-gray-500" />
+                <span className="text-gray-600 font-medium whitespace-nowrap">Sort by:</span>
                 <Select
-                  value={category}
-                  onChange={setCategory}
+                  value={sortBy}
+                  onChange={setSortBy}
                   size="large"
-                  style={{ minWidth: 180 }}
-                  options={categoryOptions}
+                  style={{ minWidth: 160 }}
+                  options={sortOptions}
                   className="rounded-lg"
                 />
               </div>
             </div>
-            
-            {/* Sort */}
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600 font-medium whitespace-nowrap">Sort by:</span>
-              <Select
-                value={sortBy}
-                onChange={setSortBy}
-                size="large"
-                style={{ minWidth: 160 }}
-                options={sortOptions}
-                className="rounded-lg"
-              />
+
+            {/* Second Row - Price Range Slider */}
+            <div className="border-t border-gray-100 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                <div className="flex items-center gap-2">
+                  <DollarOutlined className="text-gray-500" />
+                  <span className="text-gray-600 font-medium whitespace-nowrap">Price Range:</span>
+                </div>
+                <div className="flex-1 max-w-md">
+                  <Slider
+                    range
+                    min={0}
+                    max={1000}
+                    value={priceRange}
+                    onChange={setPriceRange}
+                    tooltip={{
+                      formatter: (value) => `$${value}`
+                    }}
+                    className="mb-2"
+                  />
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>${priceRange[0]}</span>
+                    <span>${priceRange[1]}</span>
+                  </div>
+                </div>
+                <Button 
+                  size="small"
+                  onClick={() => setPriceRange([0, 1000])}
+                  className="text-gray-500 hover:text-emerald-600"
+                >
+                  Reset
+                </Button>
+              </div>
             </div>
           </div>
           
@@ -134,6 +182,9 @@ export default function Home() {
               )}
               {searchTerm && (
                 <span> matching <span className="font-semibold">"{searchTerm}"</span></span>
+              )}
+              {(priceRange[0] > 0 || priceRange[1] < 1000) && (
+                <span> in price range <span className="font-semibold">${priceRange[0]} - ${priceRange[1]}</span></span>
               )}
             </p>
           </div>
@@ -158,9 +209,10 @@ export default function Home() {
                 setCategory("all");
                 setSearchTerm("");
                 setSortBy("default");
+                setPriceRange([0, 1000]);
               }}
             >
-              Clear Filters
+              Clear All Filters
             </Button>
           </div>
         ) : (
