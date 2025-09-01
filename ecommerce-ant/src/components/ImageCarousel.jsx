@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Carousel, Spin, Button } from "antd";
 import { CaretLeftOutlined, CaretRightOutlined, LeftCircleFilled, RightCircleFilled } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 export default function ImageCarousel() {
@@ -90,13 +91,15 @@ export default function ImageCarousel() {
                     <div className="text-3xl font-bold text-emerald-400">
                       ${product.price}
                     </div>
-                    <Button 
-                      type="primary"
-                      size="large"
-                      className="bg-emerald-500 hover:bg-emerald-600 border-emerald-500 hover:border-emerald-600 font-semibold px-8 py-2 h-12"
-                    >
-                      Shop Now
-                    </Button>
+                    <Link to={`/product/${product.id}`}>
+                      <Button 
+                        type="primary"
+                        size="large"
+                        className="bg-emerald-500 hover:bg-emerald-600 border-emerald-500 hover:border-emerald-600 font-semibold px-8 py-2 h-12"
+                      >
+                        View Details
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
