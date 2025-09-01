@@ -3,6 +3,7 @@ import axios from "axios";
 import { Row, Col, Select, Spin, Input, Button } from "antd";
 import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
 import ProductCard from "../components/ProductCard";
+import ImageCarousel from "../components/ImageCarousel";
 
 const { Search } = Input;
 
@@ -70,6 +71,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Image Carousel */}
+      <ImageCarousel />
+      
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
