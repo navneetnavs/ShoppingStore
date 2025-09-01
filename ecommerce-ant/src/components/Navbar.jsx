@@ -26,7 +26,7 @@ export default function Navbar() {
             <div className="bg-emerald-500 p-2 rounded-lg">
               <ShopOutlined className="text-xl text-white" />
             </div>
-            <span className="text-2xl font-bold tracking-tight">ECOMZY</span>
+            <span className="text-2xl font-bold tracking-tight">Plutonic_Shop</span>
           </Link>
           
           {/* Navigation Items */}
