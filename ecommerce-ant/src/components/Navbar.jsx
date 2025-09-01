@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { Button, Badge, Space } from "antd";
+import { Button, Badge, Space, message } from "antd";
 import { ShoppingCartOutlined, UserOutlined, LogoutOutlined, ShopOutlined } from "@ant-design/icons";
 import { logout } from "../features/authSlice";
+import { clearCart } from "../features/cartSlice";
 
 export default function Navbar() {
   const cartItems = useSelector((state) => state.cart.items);
@@ -12,9 +13,21 @@ export default function Navbar() {
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
+  // Debug logging
+  console.log('Navbar Debug:', { token, user, hasTokenOrUser: !!(token || user) });
+
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
+    console.log('Logout button clicked!');
+    try {
+      dispatch(logout());
+      dispatch(clearCart());
+      message.success("Successfully logged out!");
+      navigate("/");
+      console.log('Logout completed successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      message.error("Logout failed");
+    }
   };
 
   return (
@@ -55,23 +68,21 @@ export default function Navbar() {
             </Link>
             
             {/* User Section */}
-            {token ? (
+            {token || user ? (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-slate-300">
                   <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
                     <UserOutlined className="text-white text-sm" />
                   </div>
-                  <span className="font-medium">{user?.username}</span>
+                  <span className="font-medium">{user?.username || user?.name || 'User'}</span>
                 </div>
-                <Button 
-                  type="text" 
-                  icon={<LogoutOutlined />} 
+                <button 
                   onClick={handleLogout}
-                  className="text-slate-300 hover:text-white border-slate-600 hover:border-slate-500 transition-colors duration-200"
-                  size="small"
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium flex items-center gap-1"
                 >
+                  <LogoutOutlined />
                   Logout
-                </Button>
+                </button>
               </div>
             ) : (
               <Link to="/login">

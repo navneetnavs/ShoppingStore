@@ -14,24 +14,23 @@ export default function Login() {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      // Use FakeStoreAPI authentication endpoint
-      const authResponse = await axios.post('https://fakestoreapi.com/auth/login', {
-        username: values.username,
-        password: values.password
-      });
+      // Fetch users from JSONPlaceholder API
+      const usersResponse = await axios.get("https://jsonplaceholder.typicode.com/users");
+      const users = usersResponse.data;
       
-      if (authResponse.data.token) {
-        // Fetch user details from JSONPlaceholder API
-        const usersResponse = await axios.get("https://jsonplaceholder.typicode.com/users");
-        const users = usersResponse.data;
-        
-        // Find user by username or use first user as fallback
-        const user = users.find(u => 
-          u.username.toLowerCase() === values.username.toLowerCase()
-        ) || users[0];
+      // Find user by username or email
+      const user = users.find(u => 
+        u.username.toLowerCase() === values.username.toLowerCase() ||
+        u.email.toLowerCase() === values.username.toLowerCase()
+      );
+      
+      // Check if user exists and password is correct (single password for all users)
+      if (user && values.password === "plutonic123") {
+        // Generate a mock token
+        const mockToken = `token_${user.id}_${Date.now()}`;
         
         dispatch(loginSuccess({ 
-          token: authResponse.data.token, 
+          token: mockToken, 
           user: {
             id: user.id,
             name: user.name,
@@ -44,14 +43,14 @@ export default function Login() {
         }));
         message.success(`Welcome back, ${user.name}!`);
         navigate("/");
+      } else if (!user) {
+        message.error("User not found. Please check your username or email.");
+      } else {
+        message.error("Invalid password. Please try again.");
       }
     } catch (error) {
       console.error("Login error:", error);
-      if (error.response?.status === 401) {
-        message.error("Invalid credentials. Please try again.");
-      } else {
-        message.error("Login failed. Please check your connection and try again.");
-      }
+      message.error("Login failed. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -114,11 +113,11 @@ export default function Login() {
           
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-2 font-medium">Demo Credentials:</p>
+            <p className="text-sm text-gray-600 mb-2 font-medium">Available Users:</p>
             <div className="text-xs text-gray-500 space-y-1">
-              <div>• <span className="font-medium">Username:</span> mor_2314</div>
-              <div>• <span className="font-medium">Password:</span> 83r5^_</div>
-              <div className="mt-2 text-xs text-gray-400">Or try: johnd / m38rmF$</div>
+              <div>• <span className="font-medium">Username:</span> Bret, Antonette, Samantha, Karianne, Kamren...</div>
+              <div>• <span className="font-medium">Password:</span> plutonic123 (same for all users)</div>
+              <div className="mt-2 text-xs text-gray-400">You can also use email addresses to login</div>
             </div>
           </div>
         </Card>
