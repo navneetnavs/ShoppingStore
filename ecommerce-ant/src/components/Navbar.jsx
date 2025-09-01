@@ -76,13 +76,15 @@ export default function Navbar() {
                   </div>
                   <span className="font-medium">{user?.username || user?.name || 'User'}</span>
                 </div>
-                <button 
+                <Button 
+                  type="primary" 
+                  danger
+                  icon={<LogoutOutlined />} 
                   onClick={handleLogout}
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium flex items-center gap-1"
+                  size="small"
                 >
-                  <LogoutOutlined />
                   Logout
-                </button>
+                </Button>
               </div>
             ) : (
               <Link to="/login">
